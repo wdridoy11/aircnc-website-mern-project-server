@@ -13,7 +13,7 @@ app.use(cors(corsOptions))
 app.use(express.json())
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v2v9b72.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -47,10 +47,32 @@ async function run() {
       console.log(result)
     })
 
+    app.get("/users/:email",async(req,res)=>{
+      const email = req.params.email;
+      const query = { email: email}
+      const result = await usersCollection.findOne(query)
+      res.send(result)
+    })
+
+
     // save a room in datebase
     app.post('/rooms',async(req,res)=>{
       const room = req.body;
       const result = await roomsCollection.insertOne(room);
+      res.send(result);
+    })
+
+    // get all rooms from datebase
+    app.get("/rooms",async(req,res)=>{
+      const result = await roomsCollection.find().toArray();
+      res.send(result);
+    })
+
+    // get signle room data from datebase
+    app.get("/room/:id",async(req,res)=>{
+      const id = req.params.id;
+      const query ={ _id : new ObjectId(id)}
+      const result = await roomsCollection.findOne(query)
       res.send(result);
     })
 
